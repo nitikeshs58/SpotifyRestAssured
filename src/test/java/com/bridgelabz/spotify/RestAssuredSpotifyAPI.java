@@ -3,6 +3,7 @@ package com.bridgelabz.spotify;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.json.simple.JSONObject;
+import org.junit.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -12,6 +13,13 @@ public class RestAssuredSpotifyAPI {
     String firstPlaylistId = "";
     String secondPlaylistId = "";
     String[] trackId;
+    String expectedUserId="g93w2xw0r603qa4ixw8xqttdx";
+    String expectedEmail="nitikeshs58@gmail.com";
+    String expectedFirstPlaylistId="61t7PAj3FvUrL7eIjHkTWv";
+    String expectedSecondPlaylistId="0J91KR5FgsG87QVxvSH12x";
+    int expectedStatusCode=201;
+
+
 
     @BeforeMethod
     public void setUp() {
@@ -28,7 +36,7 @@ public class RestAssuredSpotifyAPI {
                 .when()
                 .get("https://api.spotify.com/v1/me");
         userID = response.path("id");
-        System.out.println("userID of User is : " + userID);
+        Assert.assertEquals(expectedUserId,userID);
     }
 
     // To get User profile of Spotify App
@@ -41,7 +49,8 @@ public class RestAssuredSpotifyAPI {
                 .when()
                 .get("https://api.spotify.com/v1/me");
         String userBody = response.getBody().asString();
-        System.out.println(userBody);
+        String actualEmail=response.path("email").toString();
+        Assert.assertEquals(expectedEmail,actualEmail);
     }
 
     /*
@@ -62,6 +71,8 @@ public class RestAssuredSpotifyAPI {
             .pathParam("user_id",userID)
             .when()
             .post("https://api.spotify.com/v1/users/{user_id}/playlists");
+        int actualResponseCode=response.getStatusCode();
+        Assert.assertEquals(expectedStatusCode,actualResponseCode);
         }
     */
 //To get the playlist id's in Spotify App
@@ -78,8 +89,8 @@ public class RestAssuredSpotifyAPI {
         System.out.println("Total number of playlist :" + totalNumberOfPlaylist);
         firstPlaylistId = response.path("items[0].id");
         secondPlaylistId = response.path("items[1].id");
-        System.out.println("First playlist id :" + firstPlaylistId);
-        System.out.println("Second playlist id :" + secondPlaylistId);
+        Assert.assertEquals(expectedFirstPlaylistId,firstPlaylistId);
+        Assert.assertEquals(expectedSecondPlaylistId,secondPlaylistId);
     }
 
     //Get a Playlist's Items
@@ -115,7 +126,9 @@ public class RestAssuredSpotifyAPI {
                 .body("{\"uris\": [\"" + "spotify:track:5Pgq1Gfeth2CuUhyCXwlfC" + "\"]}")
                 .when()
                 .post("https://api.spotify.com/v1/playlists/{playlist_id}/tracks");
+        int statusCode=response.getStatusCode();
         response.prettyPrint();
+        Assert.assertEquals(expectedStatusCode,statusCode);
     }
 
     //Remove Items from a Playlist
@@ -129,7 +142,9 @@ public class RestAssuredSpotifyAPI {
                 .body("{\"uris\": [\"" + "spotify:track:5Pgq1Gfeth2CuUhyCXwlfC" + "\"]}")
                 .when()
                 .delete("https://api.spotify.com/v1/playlists/{playlist_id}/tracks");
+        int statusCode=response.getStatusCode();
         response.prettyPrint();
+        Assert.assertEquals(200,statusCode);
     }
 
     //Change a Playlist's Details
@@ -143,6 +158,8 @@ public class RestAssuredSpotifyAPI {
                 .body("{\"name\": \"HeartBreaking Songs \",\"description\": \"Lots of pain\",\"public\": false}")
                 .when()
                 .put("https://api.spotify.com/v1/playlists/{playlist_id}");
+        int statusCode=response.getStatusCode();
         response.prettyPrint();
+        Assert.assertEquals(200,statusCode);
     }
 }
